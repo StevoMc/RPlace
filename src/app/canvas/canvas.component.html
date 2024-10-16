@@ -37,6 +37,12 @@
       />
       <button
         class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="toggleSelection()"
+      >
+        {{ selectionEnabled ? 'Disable' : 'Enable' }} Selection
+      </button>
+      <button
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
         (click)="fileInput.click()"
       >
         Insert PNG
@@ -52,36 +58,32 @@
       ></button>
       }
     </div>
-    <pre class="text-white text-2xl">{{ selectionEnabled }}</pre>
-    <pre class="text-white text-2xl">{{ selectedArea?.x_from }}</pre>
-    <pre class="text-white text-2xl">{{ selectedArea?.y_from }}</pre>
-    <pre class="text-white text-2xl">{{ selectedArea?.width }}</pre>
-    <pre class="text-white text-2xl">{{ selectedArea?.height }}</pre>
-    <button
-      class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
-      (click)="toggleSelection()"
-    >
-      Enable Selection
-    </button>
   </div>
-  <div class="relative">
-    @if (selectedArea) {
-    <div
-      [style.left.px]="selectedArea.x_from"
-      [style.top.px]="selectedArea.y_from"
-      [style.width.px]="selectedArea.width"
-      [style.height.px]="selectedArea.height"
-      class="absolute border-2 border-red-500"
-    ></div>
-    }
-    <canvas
-      #canvas
-      class="border"
-      (mousedown)="startSelecting($event)"
-      (mouseup)="finishSelecting($event)"
-      (mousemove)="highlightArea($event)"
-      (mouseover)="setSelectedPixel($event)"
-      (mousedown)="onPixelClicked($event)"
-    ></canvas>
+  <div class="overflow-auto">
+    <div class="relative">
+      @if (selectedArea && selectionEnabled) {
+      <div
+        [style.left.px]="selectedArea.x_from"
+        [style.top.px]="selectedArea.y_from"
+        [style.width.px]="selectedArea.width"
+        [style.height.px]="selectedArea.height"
+        class="absolute border-2 border-red-500"
+      ></div>
+      }
+      <canvas
+        #canvas
+        class="border"
+        (mousedown)="startSelecting($event)"
+        (mouseup)="finishSelecting($event)"
+        (mousemove)="highlightArea($event)"
+        (mouseover)="setSelectedPixel($event)"
+        (mousedown)="onPixelClicked($event)"
+      ></canvas>
+    </div>
   </div>
+  <pre class="text-white text-2xl"
+    >{{ selectionEnabled }} {{ selectedArea?.x_from }} {{
+      selectedArea?.y_from
+    }} {{ selectedArea?.width }} {{ selectedArea?.height }}</pre
+  >
 </div>

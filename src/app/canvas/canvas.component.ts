@@ -42,6 +42,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
         '#ff4500',
         '#ffa800',
         '#ffd635',
+        '#ffff00',
         '#00a368',
         '#7eed56',
         '#2450a4',
@@ -160,6 +161,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
 
   // Start selecting area
   startSelecting(event: MouseEvent) {
+    if (!this.selectionEnabled) return;
     this.isSelecting = true;
     const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
     this.area = {
