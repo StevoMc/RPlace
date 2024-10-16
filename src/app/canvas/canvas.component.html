@@ -1,0 +1,88 @@
+<div
+  class="flex flex-col justify-start items-start max-h-screen h-screen p-8 overflow-hidden"
+>
+  <div class="flex flex-col">
+    <div class="p-2 flex flex-row">
+      <button
+        disabled
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="transposePixels({ sure: false })"
+      >
+        Rotate
+      </button>
+      <button
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="
+          setPixelsToWhiteInRange({
+            x_from: 1,
+            x_too: 256,
+            y_from: 200,
+            y_too: 256
+          })
+        "
+      >
+        Reset
+      </button>
+      <button
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="undo()"
+      >
+        Undo
+      </button>
+      <button
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="redo()"
+      >
+        Redo
+      </button>
+      <input
+        type="file"
+        (change)="uploadPNG($event)"
+        accept="image/png"
+        style="display: none"
+        #fileInput
+      />
+      <button
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        (click)="fileInput.click()"
+      >
+        Insert PNG
+      </button>
+    </div>
+    <div class="flex flex-grow justify-center items-center py-4 space-x-2">
+      @for (color of valid_colors; track $index) {
+      <button
+        class="w-8 h-8 border shadow-lg rounded-full border-spacing-4"
+        [style.background-color]="color"
+        [style]="color === this.selectedColor ? 'border: 2px solid white' : ''"
+        (click)="onColorSelected(color)"
+      ></button>
+      }
+    </div>
+    <pre class="text-white text-2xl">{{ selectionEnabled }}</pre>
+    <pre class="text-white text-2xl">{{ selectedArea?.x_from }}</pre>
+    <pre class="text-white text-2xl">{{ selectedArea?.y_from }}</pre>
+    <pre class="text-white text-2xl">{{ selectedArea?.width }}</pre>
+    <pre class="text-white text-2xl">{{ selectedArea?.height }}</pre>
+    <button
+      class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+      (click)="toggleSelection()"
+    >
+      Enable Selection
+    </button>
+  </div>
+  <div class="relative">
+    @if (selectedArea) {
+      <div [style.left.px]="selectedArea.x_from" [style.top.px]="selectedArea.y_from" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height" class="absolute border-2 border-red-500"></div>
+    }
+    <canvas
+      #canvas
+      class="border"
+      (mousedown)="startSelecting($event)" 
+      (mouseup)="finishSelecting($event)" 
+      (mousemove)="highlightArea($event)"
+      (mouseover)="setSelectedPixel($event)"
+      (mousedown)="onPixelClicked($event)"
+    ></canvas>
+  </div>
+</div>
