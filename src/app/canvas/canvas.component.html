@@ -12,14 +12,7 @@
       </button>
       <button
         class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
-        (click)="
-          setPixelsToWhiteInRange({
-            x_from: 1,
-            x_too: 256,
-            y_from: 200,
-            y_too: 256
-          })
-        "
+        (click)="setPixelsToWhiteInRange()"
       >
         Reset
       </button>
@@ -73,13 +66,19 @@
   </div>
   <div class="relative">
     @if (selectedArea) {
-      <div [style.left.px]="selectedArea.x_from" [style.top.px]="selectedArea.y_from" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height" class="absolute border-2 border-red-500"></div>
+    <div
+      [style.left.px]="selectedArea.x_from"
+      [style.top.px]="selectedArea.y_from"
+      [style.width.px]="selectedArea.width"
+      [style.height.px]="selectedArea.height"
+      class="absolute border-2 border-red-500"
+    ></div>
     }
     <canvas
       #canvas
       class="border"
-      (mousedown)="startSelecting($event)" 
-      (mouseup)="finishSelecting($event)" 
+      (mousedown)="startSelecting($event)"
+      (mouseup)="finishSelecting($event)"
       (mousemove)="highlightArea($event)"
       (mouseover)="setSelectedPixel($event)"
       (mousedown)="onPixelClicked($event)"

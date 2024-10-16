@@ -374,17 +374,17 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  async setPixelsToWhiteInRange({
-    x_from,
-    x_too,
-    y_from,
-    y_too,
-  }: {
-    x_from: number;
-    x_too: number;
-    y_from: number;
-    y_too: number;
-  }) {
+  async setPixelsToWhiteInRange() {
+    if (!this.selectedArea) return;
+    const x_from = Math.floor(this.selectedArea.x_from / this.scale);
+    const x_too = Math.floor(
+      (this.selectedArea.x_from + this.selectedArea.width) / this.scale
+    );
+    const y_from = Math.floor(this.selectedArea.y_from / this.scale);
+    const y_too = Math.floor(
+      (this.selectedArea.y_from + this.selectedArea.height) / this.scale
+    );
+
     this.history = [];
     const filteredPixels = this.pixels.filter((pixel) => {
       const isWhite =
@@ -397,9 +397,23 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
         pixel['y'] <= y_too
       );
     });
-    for (const pixel of filteredPixels) {
-      await this.canvasService.setPixelColor(pixel.id, '#FFFFFF');
+    async function processInChunks(
+      pixels: RecordModel[],
+      chunkSize: number,
+      func: (pixel: RecordModel) => Promise<any>
+    ) {
+      for (let i = 0; i < pixels.length; i += chunkSize) {
+        const chunk = pixels.slice(i, i + chunkSize).map((pixel) => {
+          return func(pixel);
+        });
+        await Promise.all(chunk);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
     }
+
+    await processInChunks(filteredPixels, 10, (pixel) =>
+      this.canvasService.setPixelColor(pixel.id, '#FFFFFF')
+    );
   }
 
   async uploadPNG(event: Event) {
