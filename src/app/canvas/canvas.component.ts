@@ -254,7 +254,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
 
   async setSelectedPixel(event: MouseEvent) {
     const { x, y } = this.getCoordinates(event);
-    if (!this.selectedColor) return;
+    console.log(`Selected pixel ${x} ${y}`);
     const pixel = this.pixels.find((p) => p['x'] === x && p['y'] === y);
     if (!pixel) return;
     this.selectedPixel = pixel;
@@ -270,10 +270,10 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       const { x, y } = this.getCoordinates(event);
       if (!this.selectedColor) return;
       const pixel = this.pixels.find((p) => p['x'] === x && p['y'] === y);
+      if (!pixel) return;
 
       console.log(`Coordinate ${x} ${y}`);
 
-      if (!pixel) return;
       this.history.push({
         x: pixel['x'],
         y: pixel['y'],

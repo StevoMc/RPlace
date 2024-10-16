@@ -5,25 +5,25 @@
     <div class="p-2 flex flex-row">
       <button
         disabled
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="transposePixels({ sure: false })"
       >
         Rotate
       </button>
       <button
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="setPixelsToWhiteInRange()"
       >
         Reset
       </button>
       <button
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="undo()"
       >
         Undo
       </button>
       <button
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="redo()"
       >
         Redo
@@ -36,13 +36,13 @@
         #fileInput
       />
       <button
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="toggleSelection()"
       >
-        {{ selectionEnabled ? 'Disable' : 'Enable' }} Selection
+        {{ selectionEnabled ? "Disable" : "Enable" }} Selection
       </button>
       <button
-        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2"
+        class="flex justify-center items-center h-8 p-2 bg-white rounded-lg mr-2 hover:scale-125 transition-transform duration-300 ease"
         (click)="fileInput.click()"
       >
         Insert PNG
@@ -51,7 +51,7 @@
     <div class="flex flex-grow justify-center items-center py-4 space-x-2">
       @for (color of valid_colors; track $index) {
       <button
-        class="w-8 h-8 border shadow-lg rounded-full border-spacing-4"
+        class="w-8 h-8 border shadow-lg rounded-full border-spacing-4 hover:scale-125 transition-transform duration-300 ease"
         [style.background-color]="color"
         [style]="color === this.selectedColor ? 'border: 2px solid white' : ''"
         (click)="onColorSelected(color)"
@@ -76,7 +76,6 @@
         (mousedown)="startSelecting($event)"
         (mouseup)="finishSelecting($event)"
         (mousemove)="highlightArea($event)"
-        (mouseover)="setSelectedPixel($event)"
         (mousedown)="onPixelClicked($event)"
       ></canvas>
     </div>
