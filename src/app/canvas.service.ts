@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
-import { PocketBaseService } from './pocket-base.service';
 import { RecordModel } from 'pocketbase';
+import { PocketBaseService } from './pocket-base.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CanvasService {
   constructor(private pbService: PocketBaseService) {}
+
+  async getAllCanvases() {
+    return await this.pbService.pb.collection('canvases').getFullList();
+  }
 
   async get(id: string) {
     return await this.pbService.pb.collection('canvases').getOne(id, {

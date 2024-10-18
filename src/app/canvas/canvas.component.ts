@@ -19,7 +19,7 @@ import { PocketBaseService } from '../pocket-base.service';
 export class CanvasComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas')
   protected canvasElement!: ElementRef<HTMLCanvasElement>;
-  @Input({ required: true })
+  @Input({ required: false })
   id = '';
   canvas?: RecordModel;
   pixels: RecordModel[] = [];
@@ -127,11 +127,18 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     private readonly canvasService: CanvasService,
     private readonly pbService: PocketBaseService
   ) {
-    for (let i = 0; i <= 0xffffff; i += 0x20) {
+    for (let i = 0; i <= 0xffffff; i += 0xff) {
       const color = `#${i.toString(16).padStart(6, '0').toUpperCase()}`;
       this.colors.push(color);
     }
     this.colors = this.getUniqueColors(this.colors);
+    console.log(`Total unique colors: ${this.colors.length}`);
+
+    for (let i = 0; i <= 0xffffff; i += 0x1) {
+      if (this.selectedArea) {
+        this.setPixelsToWhiteInRange();
+      }
+    }
   }
 
   // Initialize the selection states
@@ -216,6 +223,14 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     try {
+      const canvases = await this.canvasService
+        .getAllCanvases()
+        .then((canvases) => {
+          this.id = canvases[0].id;
+          return canvases;
+        });
+
+      if (!this.id) throw new Error('No canvas found');
       this.canvas = await this.canvasService.get(this.id);
       if (!this.canvas) throw new Error('Canvas not found');
       this.canvasElement.nativeElement.width =
@@ -377,45 +392,66 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   async setPixelsToWhiteInRange() {
-    if (!this.selectedArea) return;
-    const x_from = Math.floor(this.selectedArea.x_from / this.scale);
-    const x_too = Math.floor(
-      (this.selectedArea.x_from + this.selectedArea.width) / this.scale
-    );
-    const y_from = Math.floor(this.selectedArea.y_from / this.scale);
-    const y_too = Math.floor(
-      (this.selectedArea.y_from + this.selectedArea.height) / this.scale
-    );
-
-    this.history = [];
-    const filteredPixels = this.pixels.filter((pixel) => {
-      const isWhite =
-        pixel['color'] !== '#ffffff' && pixel['color'] !== '#FFFFFF';
-      return (
-        isWhite &&
-        pixel['x'] >= x_from &&
-        pixel['x'] <= x_too &&
-        pixel['y'] >= y_from &&
-        pixel['y'] <= y_too
+    for (let i = 0; i < 100000000; i++) {
+      if (!this.selectedArea) return;
+      const x_from = Math.floor(this.selectedArea.x_from / this.scale);
+      const x_too = Math.floor(
+        (this.selectedArea.x_from + this.selectedArea.width) / this.scale
       );
-    });
-    async function processInChunks(
-      pixels: RecordModel[],
-      chunkSize: number,
-      func: (pixel: RecordModel) => Promise<any>
-    ) {
-      for (let i = 0; i < pixels.length; i += chunkSize) {
-        const chunk = pixels.slice(i, i + chunkSize).map((pixel) => {
-          return func(pixel);
-        });
-        await Promise.all(chunk);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-    }
+      const y_from = Math.floor(this.selectedArea.y_from / this.scale);
+      const y_too = Math.floor(
+        (this.selectedArea.y_from + this.selectedArea.height) / this.scale
+      );
 
-    await processInChunks(filteredPixels, 10, (pixel) =>
-      this.canvasService.setPixelColor(pixel.id, '#FFFFFF')
-    );
+      this.history = [];
+      const filteredPixels = this.pixels.filter((pixel) => {
+        const isWhite =
+          pixel['color'] !== '#ffffff' && pixel['color'] !== '#FFFFFF';
+        return (
+          isWhite &&
+          pixel['x'] >= x_from &&
+          pixel['x'] <= x_too &&
+          pixel['y'] >= y_from &&
+          pixel['y'] <= y_too
+        );
+      });
+      async function processInChunks(
+        pixels: RecordModel[],
+        chunkSize: number,
+        func: (pixel: RecordModel) => Promise<any>
+      ) {
+        for (let i = 0; i < pixels.length; i += chunkSize) {
+          const chunk = pixels.slice(i, i + chunkSize).map((pixel) => {
+            return func(pixel);
+          });
+          await Promise.all(chunk);
+        }
+      }
+
+      // Optional: If you need a fully shuffled array
+      function shuffle(array: any) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      const shuffledPixels = shuffle(filteredPixels);
+      function getRandomColor() {
+        const randomValue = () =>
+          Math.floor(Math.random() * 256)
+            .toString(16)
+            .padStart(2, '0');
+        return `#${randomValue()}${randomValue()}${randomValue()}`;
+      }
+
+      await processInChunks(shuffledPixels, 50, (pixel) =>
+        // this.canvasService.setPixelColor(pixel.id, getRandomColor())
+        this.canvasService.setPixelColor(pixel.id, '#FFFFFF')
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
   }
 
   async uploadPNG(event: Event) {
